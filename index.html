@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>마이티 - 테스트 버전</title>
+    <link rel="stylesheet" href="./css/style.css?v=20240205">
+</head>
+<body>
+    <div id="app">
+        <!-- 상단 정보 바 -->
+        <header id="info-bar">
+            <div class="game-info">
+                <span id="round-info">라운드: -/10</span>
+                <span id="contract-info">공약: -</span>
+                <span id="giruda-info">기루다: -</span>
+                <span id="mighty-info">마이티: -</span>
+                <span id="joker-call-info">조커콜: -</span>
+                <span id="friend-card-info">친구: ?</span>
+            </div>
+            <div class="controls">
+                <button id="test-mode-toggle" class="active">🔧 테스트모드 ON</button>
+                <button id="settings-btn">⚙️ 설정</button>
+            </div>
+        </header>
+
+        <!-- 메인 게임 영역 -->
+        <main id="game-area">
+            <!-- AI-2, AI-3 (상단 나란히) -->
+            <div class="top-row">
+                <div id="player-2" class="player-area top-left">
+                    <div class="player-header">
+                        <span class="player-name">AI-2</span>
+                        <span class="player-role"></span>
+                    </div>
+                    <div class="player-hand"></div>
+                    <div class="player-score">점수: <span>0</span>점</div>
+                </div>
+                <div id="player-3" class="player-area top-right">
+                    <div class="player-header">
+                        <span class="player-name">AI-3</span>
+                        <span class="player-role"></span>
+                    </div>
+                    <div class="player-hand"></div>
+                    <div class="player-score">점수: <span>0</span>점</div>
+                </div>
+            </div>
+
+            <!-- 중앙 행 -->
+            <div class="middle-row">
+                <!-- AI-1 (좌측) -->
+                <div id="player-1" class="player-area left">
+                    <div class="player-header">
+                        <span class="player-name">AI-1</span>
+                        <span class="player-role"></span>
+                    </div>
+                    <div class="player-hand"></div>
+                    <div class="player-score">점수: <span>0</span>점</div>
+                </div>
+
+                <!-- 중앙 트릭 영역 -->
+                <div id="trick-area">
+                    <div class="trick-cards">
+                        <div class="trick-card" data-player="2"></div>
+                        <div class="trick-card" data-player="1"></div>
+                        <div class="trick-card" data-player="3"></div>
+                        <div class="trick-card" data-player="4"></div>
+                        <div class="trick-card" data-player="0"></div>
+                    </div>
+                    <div id="trick-info"></div>
+                </div>
+
+                <!-- AI-4 (우측) -->
+                <div id="player-4" class="player-area right">
+                    <div class="player-header">
+                        <span class="player-name">AI-4</span>
+                        <span class="player-role"></span>
+                    </div>
+                    <div class="player-hand"></div>
+                    <div class="player-score">점수: <span>0</span>점</div>
+                </div>
+            </div>
+
+            <!-- 하단 행 -->
+            <div class="bottom-row">
+                <!-- 사용자 (하단 중앙) -->
+                <div id="player-0" class="player-area user">
+                    <div class="player-header">
+                        <span class="player-name">나</span>
+                        <span class="player-role"></span>
+                    </div>
+                    <div class="player-hand"></div>
+                    <div class="player-score">점수: <span>0</span>점</div>
+                </div>
+
+
+            </div>
+        </main>
+
+        <!-- 액션 영역 -->
+        <div id="action-area">
+            <div id="action-message"></div>
+            <div id="action-buttons"></div>
+            <div id="timer"></div>
+        </div>
+
+        <!-- AI 로그 패널 -->
+        <div id="ai-log-panel">
+            <div class="panel-header">
+                <span>AI 의사결정 로그</span>
+                <button id="log-toggle">▼</button>
+            </div>
+            <div class="panel-content" id="ai-log-content"></div>
+        </div>
+
+        <!-- 모달들 -->
+        <div id="modal-overlay" class="hidden">
+            <div id="modal-content"></div>
+        </div>
+
+        <!-- 비딩 모달 -->
+        <div id="bidding-modal" class="modal hidden">
+            <h3>비딩</h3>
+            <div class="current-bid">현재 최고 비딩: <span id="current-bid-display">없음</span></div>
+            <div class="bid-controls">
+                <div class="bid-number">
+                    <label>숫자:</label>
+                    <div class="number-buttons" id="bid-numbers"></div>
+                </div>
+                <div class="bid-suit">
+                    <label>기루다:</label>
+                    <div class="suit-buttons" id="bid-suits"></div>
+                </div>
+            </div>
+            <div class="bid-preview">나의 비딩: <span id="bid-preview">-</span></div>
+            <div class="bid-actions">
+                <button id="bid-submit" disabled>비딩하기</button>
+                <button id="bid-pass">패스</button>
+            </div>
+        </div>
+
+        <!-- 친구 선언 모달 -->
+        <div id="friend-modal" class="modal hidden">
+            <h3>친구 선언</h3>
+            <p>친구로 지정할 카드를 선택하세요.</p>
+            
+            <!-- 빠른 선택 버튼 -->
+            <div class="quick-friend-selection">
+                <button id="friend-mighty" class="quick-friend-btn mighty-btn">
+                    <span class="btn-icon">👑</span>
+                    <span class="btn-text">마이티 친구</span>
+                    <span class="btn-card" id="mighty-card-display">♠A</span>
+                </button>
+                <button id="friend-joker" class="quick-friend-btn joker-btn">
+                    <span class="btn-icon">🃏</span>
+                    <span class="btn-text">조커 친구</span>
+                    <span class="btn-card">JOKER</span>
+                </button>
+            </div>
+            
+            <!-- 직접 선택 (접힌 상태) -->
+            <details class="manual-selection">
+                <summary>직접 카드 선택</summary>
+                <div class="friend-selection">
+                    <div class="suit-select">
+                        <label>수트:</label>
+                        <div id="friend-suit-buttons"></div>
+                    </div>
+                    <div class="rank-select">
+                        <label>숫자:</label>
+                        <div id="friend-rank-buttons"></div>
+                    </div>
+                </div>
+                <div class="friend-preview">선택한 카드: <span id="friend-preview">-</span></div>
+                <button id="friend-confirm" class="manual-confirm-btn">선택 완료</button>
+            </details>
+            
+            <div class="friend-actions">
+                <button id="no-friend">노프렌드</button>
+            </div>
+        </div>
+
+        <!-- 카드 교환 모달 -->
+        <div id="exchange-modal" class="modal hidden">
+            <h3>카드 교환</h3>
+            <p>바닥에 버릴 카드 3장을 선택하세요.</p>
+            <div class="exchange-hand" id="exchange-hand"></div>
+            <div class="exchange-info">선택: <span id="exchange-count">0</span>/3</div>
+            
+            <!-- 기루다 변경 옵션 -->
+            <div class="giruda-change-section" id="giruda-change-section">
+                <div class="giruda-change-header">
+                    <span>기루다 변경</span>
+                    <span class="giruda-change-cost" id="giruda-change-cost"></span>
+                </div>
+                <div class="giruda-change-current" id="giruda-current-info"></div>
+                <div class="giruda-change-buttons" id="giruda-change-buttons"></div>
+            </div>
+            
+            <button id="exchange-confirm" disabled>확인</button>
+        </div>
+
+        <!-- 조커 수트 선언 모달 -->
+        <div id="joker-call-modal" class="modal hidden">
+            <h3>조커 수트 선언</h3>
+            <p>상대방이 내야 할 수트를 선택하세요.</p>
+            <div id="joker-suit-buttons"></div>
+        </div>
+
+        <!-- 게임 결과 모달 -->
+        <div id="result-modal" class="modal hidden">
+            <h3 id="result-title">게임 결과</h3>
+            <div id="result-content"></div>
+            <div class="result-buttons">
+                <button id="new-game-btn">다시 하기</button>
+                <button id="end-game-btn">끝내기</button>
+            </div>
+        </div>
+
+        <!-- 설정 모달 -->
+        <div id="settings-modal" class="modal hidden">
+            <h3>설정</h3>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h4>테스트 모드</h4>
+                    <label>
+                        <input type="checkbox" id="setting-show-ai-cards" checked>
+                        AI 카드 공개
+                    </label>
+                    <label>
+                        <input type="checkbox" id="setting-show-ai-log" checked>
+                        AI 의사결정 로그
+                    </label>
+                    <label>
+                        <input type="checkbox" id="setting-highlight-playable" checked>
+                        낼 수 있는 카드 표시
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <h4>AI 설정</h4>
+                    <label>
+                        AI 속도:
+                        <select id="setting-ai-speed">
+                            <option value="2000">느림 (2초)</option>
+                            <option value="1000" selected>보통 (1초)</option>
+                            <option value="300">빠름 (0.3초)</option>
+                            <option value="0">즉시</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <h4>게임 규칙</h4>
+                    <label>
+                        <input type="checkbox" id="setting-use-sayeon" checked>
+                        사연(四然) 기능
+                        <span class="setting-hint">주공이 첫 카드 전에 친구의 조커 보유 여부 확인</span>
+                    </label>
+                </div>
+            </div>
+            <button id="settings-close">닫기</button>
+        </div>
+    </div>
+
+    <script src="./js/constants.js?v=20240205"></script>
+    <script src="./js/card.js?v=20240205"></script>
+    <script src="./js/player.js?v=20240205"></script>
+    <script src="./js/gameState.js?v=20240205"></script>
+    <script src="./js/ai.js?v=20240205"></script>
+    <script src="./js/ui.js?v=20240205"></script>
+    <script src="./js/main.js?v=20240205"></script>
+</body>
+</html>
